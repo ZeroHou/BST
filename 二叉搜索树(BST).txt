@@ -1,0 +1,276 @@
+#include<iostream>
+#include<algorithm>//借用max函数
+#include<vector>
+using namespace std;
+
+template<typename T>
+struct Node {
+	Node<T>* left;
+	Node<T>* right;
+	T data;
+	Node(T val) :data(val), left(nullptr), right(nullptr) {}
+};
+
+template<typename T>
+class BST {
+private:
+	Node<T>* root;
+
+	//插入辅助函数
+	bool insert(Node<T>* root, T val) {
+		if (root->data > val) {
+			if (root->left)
+				return insert(root->left, val);
+			root->left = new Node<T>(val);
+			return true;
+		}
+		if (root->data < val) {
+			if (root->right)
+				return insert(root->right, val);
+			root->right = new Node<T>(val);
+			return true;
+		}
+		return false;
+	}
+
+	//删除辅助函数
+	Node<T>* del(Node<T>* root, T val) {
+		if (root) {
+			if (root->data > val) {
+				root->left = del(root->left, val);
+			}
+			else if (root->data < val) {
+				root->right = del(root->right, val);
+			}
+			else {
+				Node<T>* r = nullptr;
+				if (root->left || root->right) {
+					r = root;
+					if (height(root->left) > height(root->right)) {
+						Node<T>* left = r->left;
+						int i;
+						for (i = 0; left->right != nullptr; i++) {
+							left = left->right;
+							if (i)
+								r = r->right;
+							else r = r->left;
+						}
+						if (i) {
+							r->right = left->left;
+							left->right = root->right;
+							left->left = root->left;
+						}
+						else left->right = root->right;
+						r = left;
+					}
+					else {
+						Node<T>* right = r->right;
+						int i;
+						for (i = 0; right->left != nullptr; i++) {
+							right = right->left;
+							if (i)
+								r = r->left;
+							else r = r->right;
+						}
+						if (i) {
+							r->left = right->right;
+							right->right = root->right;
+							right->left = root->left;
+						}
+						else  right->left = root->left;
+						r = right;
+					}
+				}
+				root->left = nullptr;
+				root->right = nullptr;
+				root = r;
+			}
+			return root;
+		}
+		return nullptr;
+	}
+
+	//查找辅助函数
+	bool find(Node<T>* root, T val) {
+		if (root) {
+			if (root->data == val)
+				return true;
+			if (root->data > val)
+				return find(root->left, val);
+			else return find(root->right, val);
+		}
+		return false;
+	}
+
+	//遍历辅助函数
+	void preOrder(Node<T>* root) {
+		if (root) {
+			cout << root->data;
+			preOrder(root->left);
+			preOrder(root->right);
+		}
+	}
+	void inOrder(Node<T>* root) {
+		if (root) {
+			inOrder(root->left);
+			cout << root->data;
+			inOrder(root->right);
+		}
+	}
+	void postOrder(Node<T>* root) {
+		if (root) {
+			postOrder(root->left);
+			postOrder(root->right);
+			cout << root->data;
+		}
+	}
+
+	//高度计算辅助函数
+	int height(Node<T>* root) {
+		if (root) {
+			return max(height(root->left), height(root->right)) + 1;
+		}
+		return 0;
+	}
+
+
+public:
+	BST(T val) { root = new Node<T>(val); }
+	~BST() {}
+
+	//添加
+	bool insert(T val) {
+		return insert(root, val);
+	}
+
+	//删除
+	bool del(T val) {
+		Node<T>* p =del(root, val);
+		if (p)
+			return true;
+		return false;
+	}
+
+	//查询
+	bool find(T val) {
+		return find(root, val);
+	}
+
+	//遍历：前序遍历（dfs）、中序遍历、后序遍历、层序遍历（bfs）
+	//前序遍历
+	void preOrder() {
+		preOrder(root);
+		cout << endl;
+	}
+	//中序遍历
+	void inOrder() {
+		inOrder(root);
+		cout << endl;
+	}
+	//后序遍历
+	void postOrder() {
+		postOrder(root);
+		cout << endl;
+	}
+	//层序遍历
+	void levelOrder() {
+		if (root) {
+			vector<Node<T>*> nodes;
+			nodes.push_back(root);
+			int n = 1;
+			for (int i = 0; i < n; i++) {
+				cout << nodes[i]->data;
+				if (nodes[i]->left) {
+					nodes.push_back(nodes[i]->left);
+					n++;
+				}
+				if (nodes[i]->right) {
+					nodes.push_back(nodes[i]->right);
+					n++;
+				}
+			}
+		}
+		cout << endl;
+	}
+	//深度优先搜索
+	void dfs() { preOrder(); }
+	//广度优先搜索
+	void bfs() { levelOrder(); }
+
+	//高度计算
+	int height() {
+		return height(root);
+	}
+};
+
+
+int main() {
+	BST<int> bst(6);
+	//添加测试
+	cout << "----------添加测试----------" << endl;
+	cout << "前序遍历：";
+	bst.preOrder();
+	bst.insert(4);
+	cout << "前序遍历：";
+	bst.preOrder();
+	bst.insert(2);
+	cout << "前序遍历：";
+	bst.preOrder();
+	bst.insert(1);
+	cout << "前序遍历：";
+	bst.preOrder();
+	bst.insert(3);
+	cout << "前序遍历：";
+	bst.preOrder();
+	bst.insert(5);
+	cout << "前序遍历：";
+	bst.preOrder();
+	bst.insert(8);
+	cout << "前序遍历：";
+	bst.preOrder();
+	bst.insert(9);
+	cout << "前序遍历：";
+	bst.preOrder();
+	bst.insert(7);
+	cout << "前序遍历：";
+	bst.preOrder();
+	bst.insert(10);
+	cout << "前序遍历：";
+	bst.preOrder();
+	/*
+		   4
+		 ↙	↘
+		2     6
+	  ↙ ↘ ↙ ↘
+	  1   3 5   7
+	*/
+
+	//遍历测试
+	cout << "----------遍历测试----------" << endl;
+	cout << "前序遍历：";
+	bst.preOrder();
+	cout << "中序遍历：";
+	bst.inOrder();
+	cout << "后序遍历：";
+	bst.postOrder();
+	cout << "层序遍历：";
+	bst.levelOrder();
+	cout << "深度优先搜索：";
+	bst.dfs();
+	cout << "广度优先搜索：";
+	bst.bfs();
+
+	//高度计算测试
+	cout << "----------高度计算测试----------" << endl;
+	cout << "height:" << bst.height() << endl;
+
+	//删除测试
+	cout << "----------删除测试----------" << endl;
+	cout << "删除2：" << bst.del(2) << endl;
+	cout << "前序遍历：";
+	bst.preOrder();
+
+	//查询测试
+	cout << "----------查询测试----------" << endl;
+	cout << "查找7：" << bst.find(7) << endl;
+}
